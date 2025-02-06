@@ -1,1 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Post Test Probability Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2em;
+      background-color: #f7f7f7;
+    }
+    h1 {
+      color: #333;
+    }
+    label {
+      display: inline-block;
+      width: 200px;
+      margin-bottom: 0.5em;
+    }
+    input, select, button {
+      padding: 0.5em;
+      margin-bottom: 1em;
+    }
+    .container {
+      background: #fff;
+      padding: 1.5em;
+      border-radius: 8px;
+      max-width: 400px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .result {
+      font-size: 1.2em;
+      color: #006600;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Post Test Probability Calculator</h1>
+    <p>
+      Enter your values below. For a positive test result, the likelihood ratio is computed as:
+      <br>
+      LR<sup>+</sup> = Sensitivity / (1 – Specificity)
+      <br>
+      For a negative test result:
+      <br>
+      LR<sup>-</sup> = (1 – Sensitivity) / Specificity
+    </p>
+    
+    <div>
+      <label for="preTestProbability">Pre-test Probability (%):</label>
+      <input type="number" id="preTestProbability" placeholder="e.g., 30" min="0" max="100">
+    </div>
+    <div>
+      <label for="sensitivity">Sensitivity (%):</label>
+      <input type="number" id="sensitivity" placeholder="e.g., 90" min="0" max="100">
+    </div>
+    <div>
+      <label for="specificity">Specificity (%):</label>
+      <input type="number" id="specificity" placeholder="e.g., 85" min="0" max="100">
+    </div>
+    <div>
+      <label for="testResult">Test Result:</label>
+      <select id="testResult">
+        <option value="positive">Positive</option>
+        <option value="negative">Negative</option>
+      </select>
+    </div>
+    <div>
+      <button onclick="calculatePostTestProbability()">Calculate</button>
+    </div>
+    <div>
+      <h2>Result:</h2>
+      <p id="result" class="result">--</p>
+    </div>
+  </div>
+
+  <script>
+    function calculatePostTestProbability() {
+      // Get and convert input values from percentages to decimals
+      let preTestProbability = parseFloat(document.getElementById("preTestProbability").value) / 100;
+      let sensitivity = parseFloat(document.getElementById("sensitivity").value) / 100;
+      let specificity = parseFloat(document.getElementById("specificity").value) / 100;
+      let testResult = document.getElementById("testResult").value;
+      
+      // Validate inputs
+      if (isNaN(preTestProbability) || isNaN(sensitivity) || isNaN(specificity)) {
+        alert("Please enter valid numerical values for all fields.");
+        return;
+      }
+      if (preTestProbability < 0 || preTestProbability > 1) {
+        alert("Pre-test probability must be between 0% and 100%.");
+        return;
+      }
+      
+      // Calculate the likelihood ratio based on the test result
+      let lr;
+      if (testResult === "positive") {
+        if (specificity === 1) {
+          alert("Specificity cannot be 100% for a positive test calculation.");
+          return;
+        }
+        lr = sensitivity / (1 - specificity);
+      } else {  // negative test
+        if (specificity === 0) {
+          alert("Specificity cannot be 0% for a negative test calculation.");
+          return;
+        }
+        lr = (1 - sensitivity) / specificity;
+      }
+      
+      // Convert pre-test probability to odds: odds = p / (1 - p)
+      let preTestOdds = preTestProbability / (1 - preTestProbability);
+      
+      // Calculate post-test odds: postTestOdds = preTestOdds * LR
+      let postTestOdds = preTestOdds * lr;
+      
+      // Convert odds back to probability: probability = odds / (1 + odds)
+      let postTestProbability = postTestOdds / (1 + postTestOdds);
+      
+      // Format as a percentage
+      let resultPercentage = (postTestProbability * 100).toFixed(2);
+      
+      // Display the result
+      document.getElementById("result").textContent = resultPercentage + "%";
+    }
+  </script>
+</body>
+</html>
 
